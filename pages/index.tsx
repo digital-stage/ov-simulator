@@ -1,70 +1,51 @@
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import useAuth from "../libs/useAuth";
-import {ITeckosClient, TeckosClientWithJWT} from 'teckos-client';
-import {Device} from "../utils/types/Device";
-import {ServerDeviceEvents} from "../utils/types/SocketEvents";
+import useStage, {MAC} from "../libs/useStage";
+import SoundCardSimulator from "../components/SoundCardSimulator";
+import PresetEditor from "../components/PresetEditor";
 
 const email = "test@digital-stage.org";
 const password = "testtesttest";
 
+
 const Index = () => {
     const {signInWithEmailAndPassword, token} = useAuth();
-    const [socket, setSocket] = useState<ITeckosClient>();
-    const [device, setDevice] = useState<Device>();
+    const {device, soundCards, presets} = useStage();
 
     useEffect(() => {
         // Sign in
         signInWithEmailAndPassword(email, password);
     }, []);
 
-    useEffect(() => {
-        // Got token, register self as device
-        const initialDevice: Partial<Device> = {
-            name: 'OV Simulator',
-            canOv: true,
-            canAudio: true,
-            sendAudio: true,
-            receiveAudio: true,
-            soundCardIds: [],
-        };
-
-        const nSocket = new TeckosClientWithJWT(
-            process.env.NEXT_PUBLIC_API_URL,
-            {
-                reconnection: true,
-                timeout: 1000,
-            },
-            token,
-            {
-                device: initialDevice,
-            }
-        );
-
-        nSocket.on("connect", () =>{
-            console.log("connected!")
-        });
-
-
-        nSocket.on(ServerDeviceEvents.LOCAL_DEVICE_READY, (device: Device) =>{
-            console.log("connected!")
-            setDevice(device);
-        })
-
-        nSocket.connect();
-
-        setSocket(nSocket);
-
-    }, [token])
-
     return (
         <div>
+            <p>
+                Usually any ov-client will do the following steps when connecting:
+            </p>
             <ul>
                 <li>
-                    Token: {token ? "ok" : "requesting"}
+                    1.) Get token: {token ? "ok" : "requesting"}
                 </li>
                 <li>
-                    Device:
-                    {device ? <pre>{JSON.stringify(device, null, 2)}</pre>: "requesting"}
+                    2.) Identify this Device by it's mac address '{MAC}':
+                    {device ? <pre>{JSON.stringify(device, null, 2)}</pre> : "requesting"}
+                </li>
+                <li>
+                    The ov-client now can update the server about the connected sound cards.
+                    <SoundCardSimulator/>
+                </li>
+            </ul>
+            <p>
+                Inside the webclient we now have the following entities:
+            </p>
+            <ul>
+                <li>
+                    Available sound cards (even if not used by any ov-client):
+                    <ul>
+                        {soundCards.allIds.map(id => soundCards.byId[id]).map(soundCard => (
+                            <PresetEditor soundCard={soundCard}/>
+                        ))}
+                    </ul>
                 </li>
             </ul>
         </div>

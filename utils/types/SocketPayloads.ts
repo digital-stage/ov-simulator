@@ -24,7 +24,6 @@ export interface ChangeVideoProducerPayload {
 export type RemoveVideoProducerPayload = string;
 
 export interface AddSoundCardPayload {
-  id: string;
   initial: {
     name: string;
     driver: 'JACK' | 'ALSA' | 'ASIO' | 'WEBRTC';
@@ -54,18 +53,17 @@ export interface ChangeSoundCardPayload {
 export type RemoveSoundCardPayload = string;
 
 export interface AddTrackPresetPayload {
-  id: string;
-  initial: {
-    soundCardId: string;
-    name: string;
-    outputChannels: number[];
-  };
+  soundCardId: string;
+  name?: string;
+  inputChannels?: number[];
+  outputChannels?: number[];
 }
 
 export interface ChangeTrackPresetPayload {
   id: string;
   update: Partial<{
     name: string;
+    inputChannels: number[];
     outputChannels: number[];
   }>;
 }

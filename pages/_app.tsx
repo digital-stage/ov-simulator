@@ -1,6 +1,7 @@
 import * as React from "react";
 import Head from 'next/head';
-import {AuthProvider} from "../libs/useAuth";
+import {AuthConsumer, AuthProvider} from "../libs/useAuth";
+import {StageProvider} from "../libs/useStage";
 
 function MyApp({Component, pageProps}) {
     return (
@@ -11,7 +12,13 @@ function MyApp({Component, pageProps}) {
             <AuthProvider
                 authUrl={process.env.NEXT_PUBLIC_AUTH_URL}
             >
-                <Component {...pageProps} />
+                <AuthConsumer>
+                    {({token}) => (
+                        <StageProvider token={token}>
+                            <Component {...pageProps} />
+                        </StageProvider>
+                    )}
+                </AuthConsumer>
             </AuthProvider>
         </>
     );
