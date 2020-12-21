@@ -1,0 +1,8 @@
+/node_modules
+package-lock.json
+firebase-adminsdk.json
+dist
+.env
+.env.production
+ecosystem.config.js
+.idea
